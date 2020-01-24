@@ -1,5 +1,5 @@
 # wsgi.py
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
 from flask_restplus import Api,Namespace, Resource
 
 import os
@@ -18,6 +18,16 @@ ma = Marshmallow(app)
 from models import Product
 from schemas import products_schema, product_schema
 
+
+@app.route('/')
+def home():
+    products = db.session.query(Product).all()
+    return render_template('home.html', products=products)
+
+@app.route('/main/<int:id>')
+def product_html(id):
+    product = db.session.query(Product).get(id)
+    return render_template('product.html', product=product)
 # @app.route('/products')
 # def products():
 #     products = db.session.query(Product).all() # SQLAlchemy request => 'SELECT * FROM products'
@@ -33,13 +43,13 @@ from schemas import products_schema, product_schema
 # DELETE: The endpoint to remove a product from a database
 # UPDATE: The endpoint to update an existing product from a PATCH request body and its id in the URL
 
-ns = Namespace('products')
+ns = Namespace('api/v1/products')
 
 api = Api()
 api.add_namespace(ns)
 api.init_app(app)
 
-@ns.route('')
+@ns.route('/')
 class ApiProducts(Resource):
     def get(self):
         products = db.session.query(Product).all() # SQLAlchemy request => 'SELECT * FROM products'
@@ -83,6 +93,5 @@ class ApiProduct(Resource):
         db.session.delete(product)
         db.session.commit()
         return product_schema.jsonify(product)
-
 
 
