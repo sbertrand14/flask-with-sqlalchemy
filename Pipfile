@@ -16,6 +16,7 @@ python-dotenv = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 flask-restplus = "*"
+flask-admin = "*"
 
 [requires]
 python_version = "3.7"
