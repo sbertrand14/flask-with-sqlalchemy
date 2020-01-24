@@ -1,11 +1,14 @@
 # wsgi.py
 from flask import Flask, request, abort, render_template
 from flask_restplus import Api,Namespace, Resource
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 import os
 import logging
 from config import Config
-#logging.warn(os.environ["DUMMY"])
+
+logging.warn(os.environ["SECRET_KEY"])
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -18,16 +21,20 @@ ma = Marshmallow(app)
 from models import Product
 from schemas import products_schema, product_schema
 
+admin = Admin(app, template_mode='bootstrap3')
+admin.add_view(ModelView(Product, db.session))
 
 @app.route('/')
 def home():
     products = db.session.query(Product).all()
     return render_template('home.html', products=products)
 
-@app.route('/main/<int:id>')
+
+@app.route('/<int:id>')
 def product_html(id):
     product = db.session.query(Product).get(id)
     return render_template('product.html', product=product)
+
 # @app.route('/products')
 # def products():
 #     products = db.session.query(Product).all() # SQLAlchemy request => 'SELECT * FROM products'
